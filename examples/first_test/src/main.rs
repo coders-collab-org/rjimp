@@ -2,23 +2,25 @@ use rjimp::{plug, prelude::*, Color};
 
 #[tokio::main]
 async fn main() {
+    // Load an image from disk.
     let mut img = PNG::new("/home/darky/Pictures/sasuki.png").await.unwrap();
 
+    // Apply a built-in plugin (circle).
     plug!(img.circle());
 
-    // or
+    // Or, apply a plugin manually.
     img.plugin(flip, Default::default());
 
-    // you can use your custom plugin also by:
+    // Create a custom plugin.
     // fn custom(_options: (), bitmap: Bitmap) { ... }
     // rjimp::c_plug!(img.custom());
 
-    // edit on pixels by yourself
+    // Edit pixels directly.
     let w = img.width();
     let h = img.height();
     let mut bitmap = img.bitmap();
 
-    // get last 50 pixels
+    // Get the last 50 pixels and change their color.
     for (_x, _y, idx) in bitmap.scan(w - 50, h - 50) {
         bitmap.set_pixel_by_index(
             idx,
@@ -31,11 +33,13 @@ async fn main() {
         );
     }
 
+    // Apply another built-in plugin (circle).
     plug!(img.circle());
 
+    // Write the modified image to disk.
     img.write("/home/darky/Pictures/sasuki-c.png").unwrap();
 
-    // or
+    // Or, get the image buffer as a base64-encoded string.
     let data: String = img.get_buffer64().unwrap();
 
     println!("{data}");

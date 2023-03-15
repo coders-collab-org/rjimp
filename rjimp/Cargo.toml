@@ -1,0 +1,15 @@
+[package]
+name = "rjimp"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+
+[lib]
+name = "rjimp"
+path = "./src/lib.rs"
+
+[dependencies]
+base64 = "0.21.0"
+derive_more = "0.99.17"
+png = "0.17.7"
+tokio.workspace = true

@@ -1,0 +1,8 @@
+[workspace]
+package.edition = "2021"
+package.authors = ["Youssef Khalil <usf.kh.kh@gmail.com>"]
+members = ["rjimp", "examples/*"]
+
+
+[workspace.dependencies]
+tokio = { version = "1.26.0", features = ["fs"] }

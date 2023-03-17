@@ -1,5 +1,5 @@
 use super::ImageHandler;
-use crate::{bitmap::Bitmap, Error, HandlerError, Result};
+use crate::{bitmap::Bitmap, ColorRGBA, Error, HandlerError, Result};
 use derive_more::From;
 use png::{ColorType, Decoder, DecodingError, Encoder, EncodingError};
 use std::io::{Cursor, Write};
@@ -14,7 +14,7 @@ impl HandlerError for PNGError {}
 
 #[derive(Default)]
 pub struct PNGHandler {
-    data: Vec<u8>,
+    data: Vec<ColorRGBA>,
     width: u32,
     height: u32,
 }
@@ -47,7 +47,7 @@ impl ImageHandler for PNGHandler {
 
         let data = match info.color_type {
             ColorType::Grayscale | ColorType::Indexed => {
-                let mut result = Vec::with_capacity(bytes.len() * 4);
+                let mut result = Vec::with_capacity(bytes.len());
 
                 for mut byte in bytes {
                     if info.color_type == ColorType::Indexed {
@@ -58,30 +58,35 @@ impl ImageHandler for PNGHandler {
                             .and_then(|p| p.get(byte as usize))
                             .ok_or_else(|| Error::InvalidImage)?;
                     }
-                    result.extend([byte, byte, byte, 0xFF]);
+                    result.push(ColorRGBA(byte, byte, byte, 0xFF));
                 }
 
                 result
             }
             ColorType::Rgb => {
-                let mut result = Vec::with_capacity(bytes.len() / 3 * 4);
-
+                let mut result = Vec::with_capacity(bytes.len() / 3);
                 for rgb in bytes.windows(3) {
-                    result.extend([rgb[0], rgb[1], rgb[2], 0xFF]);
+                    result.push(ColorRGBA(rgb[0], rgb[1], rgb[2], 0xFF));
                 }
 
                 result
             }
             ColorType::GrayscaleAlpha => {
-                let mut result = Vec::with_capacity(bytes.len() / 2 * 4);
-
+                let mut result = Vec::with_capacity(bytes.len() / 2);
                 for ga in bytes.windows(2) {
-                    result.extend([ga[0], ga[0], ga[0], ga[1]]);
+                    result.push(ColorRGBA(ga[0], ga[0], ga[0], ga[1]));
                 }
 
                 result
             }
-            _ => bytes,
+            _ => {
+                let mut result = Vec::with_capacity(bytes.len() / 4);
+                for rgba in bytes.windows(4) {
+                    result.push(ColorRGBA(rgba[0], rgba[1], rgba[2], rgba[3]));
+                }
+
+                result
+            }
         };
 
         Ok(Self {
@@ -110,13 +115,11 @@ impl ImageHandler for PNGHandler {
             return None;
         }
 
-        Some(((width * y + x) * 4) as usize)
+        Some((width * y + x) as usize)
     }
 
     fn get_pixel_color_by_index(&self, index: usize) -> Option<u32> {
-        self.data
-            .get(index..index + 4)
-            .map(|bytes| u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[4]]))
+        self.data.get(index).map(ColorRGBA::to_int)
     }
 
     fn plugin<T, O>(&mut self, plugin: T, options: O)
@@ -137,7 +140,13 @@ impl ImageHandler for PNGHandler {
         let mut writer = encoder.write_header().map_err(PNGError::Encoding)?;
 
         writer
-            .write_image_data(&self.data)
+            .write_image_data(
+                &self
+                    .data
+                    .iter()
+                    .flat_map(ColorRGBA::to_bytes)
+                    .collect::<Vec<u8>>(),
+            )
             .map_err(PNGError::Encoding)?;
 
         Ok(())

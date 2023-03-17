@@ -8,6 +8,7 @@ pub mod prelude;
 pub mod rjimp;
 
 pub use color::Color;
+pub use color::ColorRGBA;
 pub use error::*;
 pub use handler::ImageHandler;
 pub use handler::PNGHandler;

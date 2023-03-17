@@ -22,14 +22,29 @@ impl Color {
 
     #[inline]
     pub fn as_hex(&self) -> u32 {
-        u32::from_be_bytes(self.as_rgba())
+        u32::from_be_bytes(self.as_rgba().to_bytes())
     }
 
     #[inline]
-    pub fn as_rgba(&self) -> [u8; 4] {
+    pub fn as_rgba(&self) -> ColorRGBA {
         match *self {
-            Color::Rgb(r, g, b) => [r, g, b, 0xFF],
-            Color::Rgba(r, g, b, a) => [r, g, b, a],
+            Color::Rgb(r, g, b) => ColorRGBA(r, g, b, 0xFF),
+            Color::Rgba(r, g, b, a) => ColorRGBA(r, g, b, a),
         }
+    }
+}
+
+#[derive(Debug, Clone, Default, Copy, PartialEq, Eq)]
+pub struct ColorRGBA(pub u8, pub u8, pub u8, pub u8);
+
+impl ColorRGBA {
+    #[inline]
+    pub fn to_bytes(&self) -> [u8; 4] {
+        [self.0, self.1, self.2, self.3]
+    }
+
+    #[inline]
+    pub fn to_int(&self) -> u32 {
+        u32::from_be_bytes(self.to_bytes())
     }
 }

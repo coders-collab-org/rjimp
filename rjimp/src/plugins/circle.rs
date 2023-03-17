@@ -20,9 +20,9 @@ pub fn circle(options: CircleOptions, bitmap: Bitmap) {
         let diff = radius - current_radius;
 
         if diff <= 0.0 {
-            bitmap.data[idx + 3] = 0;
+            bitmap.data[idx].3 = 0;
         } else if diff < 1.0 {
-            bitmap.data[idx + 3] = (255.0 * diff) as u8;
+            bitmap.data[idx].3 = (255.0 * diff) as u8;
         }
     }
 }

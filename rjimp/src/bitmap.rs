@@ -1,7 +1,7 @@
-use crate::color::Color;
+use crate::{color::ColorRGBA, Color};
 
 pub struct Bitmap<'a> {
-    pub(crate) data: &'a mut Vec<u8>,
+    pub(crate) data: &'a mut Vec<ColorRGBA>,
     pub width: u32,
     pub height: u32,
 }
@@ -24,7 +24,7 @@ impl Bitmap<'_> {
                 }
             }
 
-            let result = Some((cur_x, cur_y, ((width * cur_y + cur_x) * 4) as usize));
+            let result = Some((cur_x, cur_y, (width * cur_y + cur_x) as usize));
 
             cur_y += 1;
 
@@ -33,13 +33,16 @@ impl Bitmap<'_> {
     }
     #[inline]
     pub fn set_pixel_by_index(&mut self, idx: usize, color: Color) -> bool {
-        self.data
-            .get_mut(idx..idx + 4)
-            .map(|p| p.copy_from_slice(&color.as_rgba()))
-            .is_some()
+        if let Some(pixel) = self.data.get_mut(idx) {
+            *pixel = color.as_rgba();
+
+            return true;
+        };
+
+        false
     }
 
     pub fn set_pixel(&mut self, x: u32, y: u32, color: Color) -> bool {
-        self.set_pixel_by_index(((self.width * y + x) * 4) as usize, color)
+        self.set_pixel_by_index((self.width * y + x) as usize, color)
     }
 }

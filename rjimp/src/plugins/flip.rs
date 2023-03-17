@@ -1,4 +1,4 @@
-use crate::bitmap::Bitmap;
+use crate::{bitmap::Bitmap, ColorRGBA};
 
 #[derive(Debug, Clone)]
 pub struct FlipOptions {
@@ -16,7 +16,7 @@ impl Default for FlipOptions {
 }
 
 pub fn flip(options: FlipOptions, bitmap: Bitmap) {
-    let mut temp = vec![0 as u8; bitmap.data.len()];
+    let mut temp = vec![ColorRGBA::default(); bitmap.data.len()];
 
     for (x, y, idx) in bitmap.scan(0, 0) {
         let moved_x = if options.horizontal {
@@ -31,9 +31,9 @@ pub fn flip(options: FlipOptions, bitmap: Bitmap) {
             y
         };
 
-        let moved_idx = ((bitmap.width * moved_y + moved_x) * 4) as usize;
+        let moved_idx = (bitmap.width * moved_y + moved_x) as usize;
 
-        temp[moved_idx..moved_idx + 4].copy_from_slice(&bitmap.data[idx..idx + 4]);
+        temp[moved_idx] = bitmap.data[idx];
     }
 
     *bitmap.data = temp;

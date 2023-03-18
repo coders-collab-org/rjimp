@@ -65,7 +65,7 @@ impl ImageHandler for PNGHandler {
             }
             ColorType::Rgb => {
                 let mut result = Vec::with_capacity(bytes.len() / 3);
-                for rgb in bytes.windows(3) {
+                for rgb in bytes.chunks_exact(3) {
                     result.push(ColorRGBA(rgb[0], rgb[1], rgb[2], 0xFF));
                 }
 
@@ -73,7 +73,7 @@ impl ImageHandler for PNGHandler {
             }
             ColorType::GrayscaleAlpha => {
                 let mut result = Vec::with_capacity(bytes.len() / 2);
-                for ga in bytes.windows(2) {
+                for ga in bytes.chunks_exact(2) {
                     result.push(ColorRGBA(ga[0], ga[0], ga[0], ga[1]));
                 }
 
@@ -81,7 +81,7 @@ impl ImageHandler for PNGHandler {
             }
             _ => {
                 let mut result = Vec::with_capacity(bytes.len() / 4);
-                for rgba in bytes.windows(4) {
+                for rgba in bytes.chunks_exact(4) {
                     result.push(ColorRGBA(rgba[0], rgba[1], rgba[2], rgba[3]));
                 }
 

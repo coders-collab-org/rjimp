@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 reqwest = "0.11.14"
-rjimp = { path = "../../rjimp" }
+rjimp = { path = "../../rjimp", features = ["png"] }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

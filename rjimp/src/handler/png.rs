@@ -1,8 +1,10 @@
 use super::ImageHandler;
 use crate::{bitmap::Bitmap, ColorRGBA, Error, HandlerError, Result};
 use derive_more::From;
-use png::{ColorType, Decoder, DecodingError, Encoder, EncodingError};
+use png::{ColorType, Decoder, Encoder};
 use std::io::{Cursor, Write};
+
+pub use png::{DecodingError, EncodingError};
 
 #[derive(Debug, From)]
 pub enum PNGError {

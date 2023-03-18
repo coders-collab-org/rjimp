@@ -1,5 +1,11 @@
+#[cfg(feature = "jpeg")]
+mod jpeg;
+#[cfg(feature = "png")]
 mod png;
 
+#[cfg(feature = "jpeg")]
+pub use self::jpeg::*;
+#[cfg(feature = "png")]
 pub use self::png::*;
 
 use std::io::Write;
